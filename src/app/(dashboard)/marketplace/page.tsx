@@ -46,10 +46,25 @@ export default function MarketplacePage() {
       const response = await fetch('/api/marketplace');
       if (!response.ok) throw new Error('Error al cargar productos/servicios');
       const data = await response.json();
-      setItems(data);
-      setFilteredItems(data);
+      
+      // Verificar que data sea un array antes de asignarlo
+      if (Array.isArray(data)) {
+        setItems(data);
+        setFilteredItems(data);
+      } else {
+        console.error("La respuesta no es un array:", data);
+        setItems([]);
+        setFilteredItems([]);
+        toast({
+          title: "Error",
+          description: "Formato de datos incorrecto",
+          variant: "destructive"
+        });
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Error al cargar marketplace:", error);
+      setItems([]);
+      setFilteredItems([]);
       toast({
         title: "Error",
         description: "No se pudieron cargar los productos y servicios",
