@@ -407,4 +407,17 @@ model Participant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+}
+
+// Modelo de Marketplace
+model MarketplaceItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  category    String
+  image       String?
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 } 
