@@ -76,8 +76,8 @@ export function CalendarPreview({
   });
   
   // Ordenar eventos por fecha (más cercanos primero)
-  const sortedEvents = [...filteredEvents].sort((a, b) => a.date.getTime() - b.date.getTime());
-  const displayEvents = sortedEvents.slice(0, maxEvents);
+  const sortedEvents = filteredEvents ? [...filteredEvents].sort((a, b) => a.date.getTime() - b.date.getTime()) : [];
+  const displayEvents = sortedEvents && sortedEvents.length ? sortedEvents.slice(0, maxEvents) : [];
   
   // Agrupar eventos por día
   const eventsByDay = displayEvents.reduce((acc, event) => {

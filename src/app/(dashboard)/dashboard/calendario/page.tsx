@@ -55,95 +55,6 @@ interface Event {
   };
 }
 
-// Datos de ejemplo para eventos
-const mockEvents: Event[] = [
-  {
-    id: "1",
-    title: "Visita al pediatra",
-    description: "Revisión anual con Dr. Martínez",
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 10, 0),
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 15, 11, 0),
-    location: "Centro Médico Avenida",
-    type: "MEDICAL",
-    createdById: "user-1",
-    familyId: "family-1",
-    createdAt: new Date(),
-    createdBy: {
-      id: "user-1",
-      name: "Ana García",
-      image: null,
-    },
-  },
-  {
-    id: "2",
-    title: "Clase de natación",
-    description: "Llevar bañador y toalla",
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 18, 17, 0),
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 18, 18, 0),
-    location: "Piscina Municipal",
-    type: "ACTIVITY",
-    createdById: "user-2",
-    familyId: "family-1",
-    createdAt: new Date(),
-    createdBy: {
-      id: "user-2",
-      name: "Carlos Rodríguez",
-      image: null,
-    },
-  },
-  {
-    id: "3",
-    title: "Recogida del colegio",
-    description: "Semana con papá",
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 20, 16, 0),
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth(), 20, 16, 30),
-    location: "Colegio San José",
-    type: "SCHOOL",
-    createdById: "user-2",
-    familyId: "family-1",
-    createdAt: new Date(),
-    createdBy: {
-      id: "user-2",
-      name: "Carlos Rodríguez",
-      image: null,
-    },
-  },
-  {
-    id: "4",
-    title: "Cumpleaños de abuela",
-    description: "Llevar regalo",
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2, 18, 0),
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 2, 21, 0),
-    location: "Casa de los abuelos",
-    type: "FAMILY",
-    createdById: "user-1",
-    familyId: "family-1",
-    createdAt: new Date(),
-    createdBy: {
-      id: "user-1",
-      name: "Ana García",
-      image: null,
-    },
-  },
-  {
-    id: "5",
-    title: "Dentista",
-    description: "Revisión semestral",
-    startDate: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 5, 9, 30),
-    endDate: new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 5, 10, 30),
-    location: "Clínica Dental Sonrisa",
-    type: "MEDICAL",
-    createdById: "user-1",
-    familyId: "family-1",
-    createdAt: new Date(),
-    createdBy: {
-      id: "user-1",
-      name: "Ana García",
-      image: null,
-    },
-  },
-];
-
 // Tipos de eventos con colores y etiquetas
 const eventTypes = [
   { value: "PERSONAL", label: "Personal", color: "bg-purple-500" },
@@ -158,7 +69,7 @@ export default function CalendarioPage() {
   const [date, setDate] = useState<Value>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [view, setView] = useState<"month" | "day" | "event" | "form">("month");
-  const [events, setEvents] = useState<Event[]>(mockEvents);
+  const [events, setEvents] = useState<Event[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -174,10 +85,39 @@ export default function CalendarioPage() {
     type: "OTHER" as EventType,
   });
 
-  // Efecto para cargar eventos (simulado)
+  // Efecto para cargar eventos desde la API
   useEffect(() => {
-    // En una implementación real, aquí cargaríamos los eventos desde la API
-    // setEvents(mockEvents);
+    const fetchEvents = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch('/api/events');
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        const data = await response.json();
+        // Convertir las fechas de string a objetos Date
+        const eventsWithDates = data.map((event: any) => ({
+          ...event,
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
+          createdAt: new Date(event.createdAt)
+        }));
+        setEvents(eventsWithDates);
+      } catch (error) {
+        console.error("Error al cargar eventos:", error);
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los eventos. Por favor, intenta nuevamente.",
+          variant: "destructive",
+        });
+        // Si falla, usar eventos vacíos en lugar de mockEvents
+        setEvents([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEvents();
   }, []);
 
   // Filtrar eventos para la fecha seleccionada
@@ -271,24 +211,35 @@ export default function CalendarioPage() {
         throw new Error("La fecha de fin debe ser posterior a la fecha de inicio");
       }
       
-      // En una implementación real, aquí enviaríamos los datos a la API
-      // Simulamos la creación de un nuevo evento
-      const newEventData: Event = {
-        id: `event-${Date.now()}`,
-        title: newEvent.title,
-        description: newEvent.description || null,
-        startDate: startDateTime,
-        endDate: endDateTime,
-        location: newEvent.location || null,
-        type: newEvent.type,
-        createdById: "user-1", // En una implementación real, esto vendría del usuario autenticado
-        familyId: "family-1", // En una implementación real, esto vendría de la familia seleccionada
-        createdAt: new Date(),
-        createdBy: {
-          id: "user-1",
-          name: "Usuario actual", // En una implementación real, esto vendría del usuario autenticado
-          image: null,
+      // Enviar datos a la API
+      const response = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          title: newEvent.title,
+          description: newEvent.description || null,
+          startDate: startDateTime.toISOString(),
+          endDate: endDateTime.toISOString(),
+          location: newEvent.location || null,
+          type: newEvent.type,
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+      
+      const createdEvent = await response.json();
+      
+      // Convertir las fechas de string a objetos Date
+      const newEventData: Event = {
+        ...createdEvent,
+        startDate: new Date(createdEvent.startDate),
+        endDate: new Date(createdEvent.endDate),
+        createdAt: new Date(createdEvent.createdAt)
       };
       
       // Actualizar la lista de eventos
@@ -333,8 +284,17 @@ export default function CalendarioPage() {
     
     setIsLoading(true);
     try {
-      // En una implementación real, aquí enviaríamos la solicitud a la API
-      // Simulamos la eliminación
+      // Enviar solicitud a la API
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Error ${response.status}: ${response.statusText}`);
+      }
+      
+      // Actualizar la lista de eventos
       setEvents((prev) => prev.filter((event) => event.id !== eventId));
       
       // Mostrar mensaje de éxito
@@ -349,7 +309,7 @@ export default function CalendarioPage() {
       console.error("Error al eliminar evento:", error);
       toast({
         title: "Error",
-        description: "Error al eliminar el evento",
+        description: error instanceof Error ? error.message : "Error al eliminar el evento",
         variant: "destructive",
       });
     } finally {

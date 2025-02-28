@@ -1,29 +1,15 @@
 {
   "version": 2,
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "npm run build",
   "installCommand": "npm install",
+  "framework": "nextjs",
   "outputDirectory": ".next",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/next",
-      "config": {
-        "installCommand": "npm install",
-        "buildCommand": "npm run vercel-build"
-      }
-    }
-  ],
-  "env": {
-    "PRISMA_SKIP_POSTINSTALL_GENERATE": "true",
-    "PRISMA_GENERATE_DATAPROXY": "true",
-    "NEXTAUTH_URL": "https://coparentalidad-dr6b7rv76-stoja88s-projects.vercel.app",
-    "NEXT_PUBLIC_APP_URL": "https://coparentalidad-dr6b7rv76-stoja88s-projects.vercel.app",
-    "NODE_ENV": "production",
-    "DEBUG": "true"
-  },
   "git": {
     "deploymentEnabled": {
       "main": true
     }
+  },
+  "env": {
+    "NODE_ENV": "production"
   }
 } 

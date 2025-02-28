@@ -481,18 +481,20 @@ export function ExpenseChart({
                       <p className="text-2xl font-bold">
                         {(() => {
                           // Verificar que hay datos para evitar undefined
-                          const entries = Object.entries(percentages);
+                          const entries = Object.entries(percentages || {});
                           if (entries.length === 0) return 'Sin datos';
                           
-                          const maxCategory = entries.reduce((a, b) => a[1] > b[1] ? a : b);
+                          const maxCategory = entries.reduce((a, b) => a[1] > b[1] ? a : b, ['Sin datos', 0]);
                           // Verificar que maxCategory[0] existe antes de usar charAt y slice
-                          if (!maxCategory || !maxCategory[0]) return 'Sin datos';
+                          if (!maxCategory || !maxCategory[0] || typeof maxCategory[0] !== 'string') return 'Sin datos';
                           
                           return maxCategory[0].charAt(0).toUpperCase() + maxCategory[0].slice(1);
                         })()}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {Math.max(...Object.values(percentages)).toFixed(1)}% del total
+                        {Object.values(percentages || {}).length > 0 
+                          ? Math.max(...Object.values(percentages || {})).toFixed(1) + '% del total' 
+                          : '0% del total'}
                       </p>
                     </div>
                   </div>

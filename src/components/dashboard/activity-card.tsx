@@ -31,7 +31,7 @@ export function ActivityCard({
   className,
   maxItems = 3
 }: ActivityCardProps) {
-  const displayItems = items.slice(0, maxItems);
+  const displayItems = items && Array.isArray(items) ? items.slice(0, maxItems) : [];
   
   return (
     <Card className={cn("h-full", className)}>

@@ -10,30 +10,35 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 // Modelo de Usuario
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  role          Role      @default(PARENT)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  // Relaciones
-  families      FamilyMember[]
-  messages      Message[]
-  expenses      Expense[]
-  documents     Document[]
-  events        Event[]
-  accounts      Account[]
-  sessions      Session[]
+  id              String             @id @default(cuid())
+  name            String?
+  email           String             @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  role            Role               @default(PARENT)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  accounts        Account[]
+  documents       Document[]
+  events          Event[]
+  expenses        Expense[]
   sentInvitations FamilyInvitation[] @relation("SentInvitations")
+  families        FamilyMember[]
+  messages        Message[]
+  sessions        Session[]
+  mediador        Mediador?
+  partesCaso      ParteCaso[]
+  subscriptionPlanId String?
+  subscriptionPlan   SubscriptionPlan? @relation("UserSubscription", fields: [subscriptionPlanId], references: [id])
+  lawyer             Lawyer?
+  reviews            Review[]
+  payments           Payment[]
 }
 
 // Modelo de Cuenta (para autenticación)
@@ -50,8 +55,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -67,16 +71,16 @@ model Session {
 
 // Modelo de Familia
 model Family {
-  id          String        @id @default(cuid())
+  id          String             @id @default(cuid())
   name        String
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  members     FamilyMember[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  documents   Document[]
   events      Event[]
   expenses    Expense[]
-  documents   Document[]
-  messages    Message[]
   invitations FamilyInvitation[]
+  members     FamilyMember[]
+  messages    Message[]
 }
 
 // Modelo de Miembro de Familia
@@ -87,91 +91,96 @@ model FamilyMember {
   role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Modelo de Invitación a Familia
 model FamilyInvitation {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   familyId    String
   email       String
   role        Role
   status      InvitationStatus @default(PENDING)
   invitedById String
   expiresAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
-  invitedBy   User     @relation("SentInvitations", fields: [invitedById], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  family      Family           @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  invitedBy   User             @relation("SentInvitations", fields: [invitedById], references: [id])
 }
 
 // Modelo de Evento (Calendario)
 model Event {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   description String?
   startDate   DateTime
-  endDate     DateTime
+  endDate     DateTime?
   location    String?
+  eventType   EventType    @default(OTHER)
+  visibility  Visibility   @default(PRIVATE)
+  status      EventStatus  @default(SCHEDULED)
+  familyId    String?
   createdById String
-  familyId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  family      Family?      @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  attendees   Attendee[]
+  reminders   Reminder[]
 }
 
 // Modelo de Mensaje
 model Message {
-  id          String   @id @default(cuid())
-  content     String
-  senderId    String
-  familyId    String
-  isRead      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  sender      User     @relation(fields: [senderId], references: [id])
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  id         String      @id @default(cuid())
+  content    String
+  read       Boolean     @default(false)
+  familyId   String
+  senderId   String
+  attachment String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  family     Family      @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  sender     User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
 
 // Modelo de Documento
 model Document {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  fileUrl     String
-  fileType    String
-  uploaderId  String
-  familyId    String
-  category    DocumentCategory
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  uploader    User     @relation(fields: [uploaderId], references: [id])
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  title        String
+  description  String?
+  fileUrl      String
+  fileType     String?
+  fileSize     Int?
+  category     DocumentCategory
+  visibility   Visibility       @default(PRIVATE)
+  familyId     String?
+  uploadedById String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  family       Family?          @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  uploadedBy   User             @relation(fields: [uploadedById], references: [id], onDelete: Cascade)
 }
 
 // Modelo de Gasto
 model Expense {
-  id          String   @id @default(cuid())
-  title       String
-  amount      Float
-  date        DateTime
-  description String?
-  receipt     String?
-  category    ExpenseCategory
-  createdById String
-  familyId    String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  createdBy   User     @relation(fields: [createdById], references: [id])
-  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  id           String         @id @default(cuid())
+  title        String
+  description  String?
+  amount       Float
+  currency     String         @default("USD")
+  date         DateTime
+  category     ExpenseCategory
+  status       ExpenseStatus  @default(PENDING)
+  receiptUrl   String?
+  familyId     String?
+  createdById  String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  family       Family?        @relation(fields: [familyId], references: [id], onDelete: SetNull)
+  createdBy    User           @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  participants Participant[]
 }
 
 // Enumeraciones
@@ -179,6 +188,8 @@ enum Role {
   PARENT
   LEGAL_GUARDIAN
   ADMIN
+  MEDIADOR
+  LAWYER
 }
 
 enum DocumentCategory {
@@ -190,13 +201,45 @@ enum DocumentCategory {
 }
 
 enum ExpenseCategory {
-  EDUCATION
-  HEALTH
+  SCHOOL
+  MEDICAL
   CLOTHING
   FOOD
-  ENTERTAINMENT
+  EXTRACURRICULAR
+  HOUSING
+  CHILDCARE
   TRANSPORTATION
   OTHER
+}
+
+enum EventType {
+  SCHOOL
+  MEDICAL
+  VACATION
+  VISITATION
+  EXTRACURRICULAR
+  BIRTHDAY
+  HOLIDAY
+  OTHER
+}
+
+enum EventStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+  RESCHEDULED
+}
+
+enum ExpenseStatus {
+  PENDING
+  COMPLETED
+  DISPUTED
+}
+
+enum Visibility {
+  PRIVATE
+  SHARED
+  PUBLIC
 }
 
 enum InvitationStatus {
@@ -204,4 +247,164 @@ enum InvitationStatus {
   ACCEPTED
   REJECTED
   EXPIRED
+}
+
+model Mediador {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  licenseId   String    @unique
+  specialties String[]
+  description String?
+  experience  Int?      @default(0)
+  rating      Float?    @default(0)
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  casos       Caso[]
+}
+
+model Lawyer {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  licenseId   String    @unique
+  specialties String[]
+  description String?
+  experience  Int?      @default(0)
+  rating      Float?    @default(0)
+  verified    Boolean   @default(false)
+  verifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  casos       ParteCaso[]
+  reviews     Review[]
+}
+
+model Caso {
+  id             String     @id @default(cuid())
+  titulo         String
+  descripcion    String?
+  estado         EstadoCaso @default(ABIERTO)
+  mediadorId     String
+  fechaInicio    DateTime   @default(now())
+  fechaCierre    DateTime?
+  documentos     String[]
+  notas          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  mediador       Mediador   @relation(fields: [mediadorId], references: [id], onDelete: Cascade)
+  partes         ParteCaso[]
+}
+
+model ParteCaso {
+  id         String   @id @default(cuid())
+  casoId     String
+  userId     String
+  tipo       TipoParte
+  notas      String?
+  lawyerId   String?
+  caso       Caso     @relation(fields: [casoId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lawyer     Lawyer?  @relation(fields: [lawyerId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum EstadoCaso {
+  ABIERTO
+  EN_PROCESO
+  RESUELTO
+  CERRADO
+  CANCELADO
+}
+
+enum TipoParte {
+  PARTE_A
+  PARTE_B
+  OTRO
+}
+
+model SubscriptionPlan {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  price         Float
+  interval      String    @default("month")
+  features      String[]
+  active        Boolean   @default(true)
+  trialDays     Int       @default(0)
+  stripePriceId String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  users         User[]    @relation("UserSubscription")
+}
+
+model Payment {
+  id            String         @id @default(cuid())
+  userId        String
+  amount        Float
+  currency      String         @default("USD")
+  status        PaymentStatus  @default(PENDING)
+  provider      String         @default("stripe")
+  providerPaymentId String?
+  metadata      Json?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  lawyerId  String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lawyer    Lawyer   @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+}
+
+model Attendee {
+  id        String   @id @default(cuid())
+  eventId   String
+  name      String?
+  email     String?
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Reminder {
+  id        String   @id @default(cuid())
+  eventId   String
+  time      DateTime
+  sent      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
+
+model Participant {
+  id        String   @id @default(cuid())
+  expenseId String
+  userId    String?
+  name      String?
+  email     String?
+  amount    Float
+  paid      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expense   Expense  @relation(fields: [expenseId], references: [id], onDelete: Cascade)
 } 
