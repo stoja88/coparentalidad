@@ -550,19 +550,19 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
                           <span>Mensajes intercambiados este mes</span>
                           <span className="font-semibold">24</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
                           <span>Tiempo promedio de respuesta</span>
                           <span className="font-semibold">4 horas</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
                           <span>Acuerdos alcanzados</span>
                           <span className="font-semibold">8</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors">
                           <span>Temas pendientes</span>
                           <span className="font-semibold">3</span>
                         </div>
@@ -583,7 +583,7 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors">
+                        <div className="flex items-center gap-3 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300">
                           <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
                             <User className="h-5 w-5 text-indigo-600" />
                           </div>
@@ -592,7 +592,7 @@ export default function DashboardContent() {
                             <p className="text-sm text-muted-foreground">ana@ejemplo.com</p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors">
+                        <div className="flex items-center gap-3 p-3 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-lg border border-indigo-100 dark:border-indigo-800/50 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300">
                           <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center">
                             <User className="h-5 w-5 text-indigo-600" />
                           </div>
@@ -623,7 +623,7 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                             <span>Educación</span>
@@ -633,7 +633,7 @@ export default function DashboardContent() {
                             <span className="text-xs text-muted-foreground">(42%)</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                             <span>Salud</span>
@@ -643,7 +643,7 @@ export default function DashboardContent() {
                             <span className="text-xs text-muted-foreground">(24%)</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <span>Actividades</span>
@@ -653,7 +653,7 @@ export default function DashboardContent() {
                             <span className="text-xs text-muted-foreground">(29%)</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-purple-500"></div>
                             <span>Otros</span>
@@ -680,15 +680,15 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <span>Total gastos compartidos</span>
                           <span className="font-semibold">€1,160</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <span>Pagado por Ana</span>
                           <span className="font-semibold">€580</span>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors">
                           <span>Pagado por Carlos</span>
                           <span className="font-semibold">€580</span>
                         </div>
@@ -721,7 +721,7 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
-                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 transition-colors">
+                        <div className="flex justify-between items-center p-3 bg-purple-50/50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                               <FileText className="h-5 w-5 text-purple-600" />
@@ -731,9 +731,9 @@ export default function DashboardContent() {
                               <p className="text-xs text-muted-foreground">Actualizado: 12/03/2023</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-900/20 dark:hover:text-purple-400">Ver</Button>
+                          <Button variant="ghost" size="sm" className="hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-400 transition-colors">Ver</Button>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 transition-colors">
+                        <div className="flex justify-between items-center p-3 bg-purple-50/50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                               <FileText className="h-5 w-5 text-purple-600" />
@@ -743,9 +743,9 @@ export default function DashboardContent() {
                               <p className="text-xs text-muted-foreground">Actualizado: 05/09/2023</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-900/20 dark:hover:text-purple-400">Ver</Button>
+                          <Button variant="ghost" size="sm" className="hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-400 transition-colors">Ver</Button>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-700 transition-colors">
+                        <div className="flex justify-between items-center p-3 bg-purple-50/50 dark:bg-purple-900/10 rounded-lg border border-purple-100 dark:border-purple-800/50 hover:border-purple-300 dark:hover:border-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-300">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center">
                               <FileText className="h-5 w-5 text-purple-600" />
@@ -755,7 +755,7 @@ export default function DashboardContent() {
                               <p className="text-xs text-muted-foreground">Actualizado: 18/01/2024</p>
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="hover:bg-purple-50 hover:text-purple-700 dark:hover:bg-purple-900/20 dark:hover:text-purple-400">Ver</Button>
+                          <Button variant="ghost" size="sm" className="hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-900/30 dark:hover:text-purple-400 transition-colors">Ver</Button>
                         </div>
                       </div>
                     </CardContent>
@@ -785,23 +785,23 @@ export default function DashboardContent() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                           <span>Legales</span>
                           <Badge className="bg-purple-600 hover:bg-purple-700">4</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                           <span>Médicos</span>
                           <Badge className="bg-purple-600 hover:bg-purple-700">3</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                           <span>Escolares</span>
                           <Badge className="bg-purple-600 hover:bg-purple-700">6</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                           <span>Financieros</span>
                           <Badge className="bg-purple-600 hover:bg-purple-700">2</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        <div className="flex justify-between items-center p-2 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors">
                           <span>Otros</span>
                           <Badge className="bg-purple-600 hover:bg-purple-700">1</Badge>
                         </div>
