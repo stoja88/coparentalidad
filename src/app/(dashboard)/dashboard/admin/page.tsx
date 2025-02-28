@@ -97,8 +97,16 @@ interface Lawyer {
   specialties: string[];
   bio: string;
   image: string | null;
-  verified: boolean;
+  isVerified: boolean;
   rating: number;
+  education: string;
+  experience: string;
+  languages: string[];
+  areas: string[];
+  availability: string;
+  location: string;
+  website?: string;
+  services?: any[];
 }
 
 interface Payment {
@@ -114,10 +122,11 @@ interface Payment {
 interface Subscription {
   id: string;
   name: string;
+  description: string;
   price: number;
   interval: 'monthly' | 'yearly';
   features: string[];
-  active: boolean;
+  isActive: boolean;
 }
 
 // Interfaces para elementos nuevos
@@ -455,8 +464,16 @@ export default function AdminDashboard() {
             specialties: ["Especialidad 1", "Especialidad 2"],
             bio: "Biografía del abogado 1",
             image: null,
-            verified: true,
-            rating: 4.5
+            isVerified: true,
+            rating: 4.5,
+            education: "Universidad de ejemplo",
+            experience: "5 años de experiencia",
+            languages: ["Español", "Inglés"],
+            areas: ["Divorcio", "Derecho familiar"],
+            availability: "Disponible",
+            location: "Ciudad de ejemplo",
+            website: "www.abogado1.com",
+            services: ["Asesoramiento legal", "Representación en juicio"]
           },
           {
             id: "2",
@@ -465,8 +482,15 @@ export default function AdminDashboard() {
             specialties: ["Especialidad 3", "Especialidad 4"],
             bio: "Biografía del abogado 2",
             image: null,
-            verified: false,
-            rating: 4.0
+            isVerified: false,
+            rating: 4.0,
+            education: "Universidad de ejemplo",
+            experience: "3 años de experiencia",
+            languages: ["Español", "Francés"],
+            areas: ["Divorcio", "Derecho laboral"],
+            availability: "No disponible",
+            location: "Ciudad de ejemplo",
+            services: ["Asesoramiento legal", "Representación en juicio"]
           }
         ]);
       } finally {
@@ -525,18 +549,20 @@ export default function AdminDashboard() {
           {
             id: "1",
             name: "Suscripción de ejemplo 1",
+            description: "Descripción de la suscripción 1",
             price: 9.99,
             interval: 'monthly',
             features: ["Característica 1", "Característica 2"],
-            active: true
+            isActive: true
           },
           {
             id: "2",
             name: "Suscripción de ejemplo 2",
+            description: "Descripción de la suscripción 2",
             price: 19.99,
             interval: 'yearly',
             features: ["Característica 3", "Característica 4"],
-            active: true
+            isActive: true
           }
         ]);
       } finally {
@@ -695,18 +721,26 @@ export default function AdminDashboard() {
           specialties: [],
           bio: '',
           image: null,
-          verified: false,
-          rating: 0
+          isVerified: false,
+          rating: 0,
+          education: '',
+          experience: '',
+          languages: [],
+          areas: [],
+          availability: '',
+          location: '',
+          services: []
         });
         break;
       case 'subscriptions':
         setEditItem({
           id: 'new',
           name: '',
+          description: '',
           price: 0,
           interval: 'monthly',
           features: [],
-          active: true
+          isActive: true
         });
         break;
     }
@@ -912,8 +946,8 @@ export default function AdminDashboard() {
     if (!editItem) return null;
 
     const onSave = isCreating 
-      ? (id: string, data: any) => handleSaveNew(editType, data)
-      : (id: string, data: any) => handleUpdate(editType, id, data);
+      ? (data: any) => handleSaveNew(editType, data)
+      : (data: any) => handleUpdate(editType, editItem.id, data);
 
     switch (editType) {
       case 'users':
@@ -1011,6 +1045,58 @@ export default function AdminDashboard() {
         return `${action} plan de suscripción`;
       default:
         return "";
+    }
+  };
+
+  // Cargar estadísticas
+  const fetchStats = async (period: string) => {
+    setLoading(prev => ({ ...prev, stats: true }));
+    setStatsPeriod(period);
+    
+    try {
+      const response = await fetch(`/api/admin/stats?period=${period}`);
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data);
+      } else {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.warn('Error al cargar estadísticas:', error);
+      // Estadísticas de ejemplo
+      setStats({
+        users: {
+          total: period === "year" ? 1250 : period === "week" ? 45 : 250,
+          new: period === "year" ? 450 : period === "week" ? 5 : 15,
+          active: period === "year" ? 850 : period === "week" ? 30 : 120
+        },
+        revenue: {
+          total: period === "year" ? 15250.75 : period === "week" ? 350.50 : 1250.75,
+          period: period === "year" ? "Este año" : period === "week" ? "Esta semana" : "Este mes"
+        },
+        marketplace: {
+          total: period === "year" ? 180 : period === "week" ? 12 : 42,
+          featured: period === "year" ? 25 : period === "week" ? 3 : 8
+        },
+        lawyers: {
+          total: period === "year" ? 30 : period === "week" ? 5 : 15,
+          verified: period === "year" ? 20 : period === "week" ? 2 : 10
+        },
+        subscriptions: [
+          {
+            id: "1",
+            name: "Plan Básico",
+            userCount: period === "year" ? 750 : period === "week" ? 25 : 125
+          },
+          {
+            id: "2",
+            name: "Plan Premium",
+            userCount: period === "year" ? 500 : period === "week" ? 20 : 85
+          }
+        ]
+      });
+    } finally {
+      setLoading(prev => ({ ...prev, stats: false }));
     }
   };
 
