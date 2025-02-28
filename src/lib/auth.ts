@@ -1,143 +1,119 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-
-import prisma, { db } from "@/lib/db";
-import { getDynamicPrismaClient } from "@/lib/db";
-
-export type UserRole = "ADMIN" | "USER" | "MEDIADOR"
+import bcrypt from "bcrypt";
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: {
+            email: credentials.email,
+          },
+        });
+
+        if (!user) {
+          return null;
+        }
+
+        const passwordMatch = await bcrypt.compare(
+          credentials.password,
+          user.hashedPassword!
+        );
+
+        if (!passwordMatch) {
+          return null;
+        }
+
+        return user;
+      },
+    }),
+  ],
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 días
+    updateAge: 24 * 60 * 60, // 24 horas
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   pages: {
     signIn: "/login",
     error: "/login",
   },
-  debug: process.env.NODE_ENV !== "production" || process.env.DEBUG === "true",
-  logger: {
-    error(code, metadata) {
-      console.error(`[Auth] ERROR: ${code}`, metadata);
-    },
-    warn(code) {
-      console.warn(`[Auth] WARNING: ${code}`);
-    },
-    debug(code, metadata) {
-      if (process.env.DEBUG === "true") {
-        console.log(`[Auth] DEBUG: ${code}`, metadata);
-      }
-    },
-  },
-  providers: [
-    CredentialsProvider({
-      id: "credentials",
-      name: "Credenciales",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Contraseña", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          console.error("Credenciales incompletas");
-          throw new Error("Credenciales incompletas");
-        }
-
-        try {
-          // Conectar a la base de datos
-          const db = await getDynamicPrismaClient();
-
-          // Buscar usuario por email
-          const user = await db.user.findUnique({
-            where: {
-              email: credentials.email.toLowerCase().trim(),
-            },
-          });
-
-          if (!user) {
-            console.error(`Usuario no encontrado: ${credentials.email}`);
-            throw new Error("Credenciales inválidas");
-          }
-
-          // Verificar contraseña
-          const passwordMatch = await bcrypt.compare(credentials.password, user.password || "");
-
-          if (!passwordMatch) {
-            console.error("Contraseña incorrecta para usuario:", user.email);
-            throw new Error("Credenciales inválidas");
-          }
-
-          console.log("Usuario autenticado correctamente:", {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          });
-
-          // Devolver usuario sin contraseña
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            image: user.image,
-          };
-        } catch (error) {
-          console.error("Error en authorize:", error);
-          throw error;
-        }
-      },
-    }),
-  ],
   callbacks: {
     async jwt({ token, user, account }) {
-      // Inicial acceso: Añadir usuario al token
+      // Cuando el usuario inicia sesión por primera vez
       if (user) {
-        console.log("JWT callback - user added to token:", user);
         token.id = user.id;
-        token.name = user.name;
         token.email = user.email;
+        token.name = user.name;
         token.role = user.role;
-        token.picture = user.image;
+        token.iat = Math.floor(Date.now() / 1000);
+        token.exp = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60; // 30 días
+      }
+
+      // Verificar si el token está por expirar (menos de 1 día)
+      const tokenExpiry = token.exp as number;
+      const currentTime = Math.floor(Date.now() / 1000);
+      const oneDayInSeconds = 24 * 60 * 60;
+
+      if (tokenExpiry - currentTime < oneDayInSeconds) {
+        // Renovar el token por otros 30 días
+        token.exp = currentTime + 30 * 24 * 60 * 60;
+        console.log("Token renovado por 30 días más");
       }
 
       return token;
     },
-    
     async session({ session, token }) {
       if (token) {
-        console.log("Session callback - token added to session:", token);
-        
-        // Añadir información del token a la sesión
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.role = token.role as string;
-        session.user.image = token.picture as string | null;
       }
-
       return session;
     },
-    
-    async redirect({ url, baseUrl }) {
-      // Asegurar que las URLs de redirección estén correctamente formateadas
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || baseUrl;
-      
-      // Si la URL comienza con la URL base o es una URL relativa, permitirla
-      if (url.startsWith(appUrl) || url.startsWith("/")) {
-        console.log("Redirigiendo a:", url);
-        return url;
-      }
-      
-      // Por defecto, redirigir al dashboard
-      console.log("Redirigiendo por defecto a:", `${appUrl}/dashboard`);
-      return `${appUrl}/dashboard`;
-    }
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 };
 
 // Función para verificar si un usuario está autenticado en el cliente
