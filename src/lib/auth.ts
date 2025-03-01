@@ -104,11 +104,20 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && session.user) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.role = token.role as string;
+      } else if (!session.user) {
+        // Si session.user es undefined, inicializarlo con valores por defecto
+        session.user = {
+          id: '',
+          name: '',
+          email: '',
+          role: '',
+          image: null
+        };
       }
       return session;
     },

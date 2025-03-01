@@ -5,6 +5,7 @@ import { CredentialsProvider } from "@next-auth/credentials";
 import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 
+// Registrar información de inicialización para depuración
 console.log("Inicializando NextAuth con las siguientes opciones:", {
   providers: authOptions.providers.map(p => p.id),
   session: authOptions.session,
