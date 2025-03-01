@@ -1,9 +1,5 @@
 import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { CredentialsProvider } from "@next-auth/credentials";
-import bcrypt from "bcrypt";
-import { NextAuthOptions } from "next-auth";
 
 // Registrar información de inicialización para depuración
 console.log("Inicializando NextAuth con las siguientes opciones:", {
